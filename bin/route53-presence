@@ -40,7 +40,15 @@ parser.add_argument('--local', action='store_true', help='use local IP instead o
 
 args = parser.parse_args()
 
-conn = boto.connect_route53(os.environ.get('AWS_ACCESS_KEY'), os.environ.get('AWS_SECRET_KEY'))
+access_key = os.environ.get('AWS_ACCESS_KEY')
+secret_key = os.environ.get('AWS_SECRET_KEY')
+
+if access_key != '' and secret_key != '':
+  conn = boto.connect_route53(os.environ.get('AWS_ACCESS_KEY'), os.environ.get('AWS_SECRET_KEY'))
+else:
+  # Use instance metadata for credentials.
+  conn = boto.connect_route53()
+
 zone_id = get_zone_id(args.hostname)
 
 result = register(args.hostname, get_ip(args.local), args.ttl)
